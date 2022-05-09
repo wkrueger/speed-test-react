@@ -6,6 +6,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TextField,
 } from "@mui/material"
 import immer from "immer"
 import { useCallback, useState } from "react"
@@ -31,14 +32,16 @@ for (let it = 0; it < 100; it++) {
 }
 
 function App() {
-  const [data, setData] = useState(initialData)
+  const [data, setData] = useState({ data: initialData, count: 0 })
   const setField = useCallback((ev: any) => {
     const index = ev.target.dataset.rindex
     const column = ev.target.dataset.rcolumn
     const checked = ev.target.checked
+    const value = ev.target.value
     setData((previous) => {
       return immer(previous, (draft) => {
-        draft[index][column] = checked
+        draft.data[index][column] = column === "name" ? value : checked
+        draft.count++
       })
     })
   }, [])
@@ -46,7 +49,8 @@ function App() {
   return (
     <>
       <h2>Hello</h2>
-      <TableContainer sx={{ maxWidth: "400px" }}>
+      <p>{data.count}</p>
+      <TableContainer sx={{ maxWidth: "600px" }}>
         <Table>
           <TableHead>
             <TableRow>
@@ -58,10 +62,19 @@ function App() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {data.map((row, idx) => {
+            {data.data.map((row, idx) => {
               return (
                 <TableRow key={idx}>
-                  <TableCell>{row.name}</TableCell>
+                  <TableCell>
+                    <TextField
+                      value={row.name}
+                      onChange={setField}
+                      inputProps={{
+                        "data-rcolumn": "name",
+                        "data-rindex": idx,
+                      }}
+                    />
+                  </TableCell>
                   <TableCell>
                     <Checkbox
                       inputProps={
